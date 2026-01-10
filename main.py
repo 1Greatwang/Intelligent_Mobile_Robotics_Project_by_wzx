@@ -1,4 +1,5 @@
 from flight_environment import FlightEnvironment
+from path_planner import a_star_search
 
 env = FlightEnvironment(50)
 start = (1,2,0)
@@ -13,9 +14,22 @@ goal = (18,18,3)
 #   - column 3 contains the z-coordinates of all path points
 # This `path` array will be provided to the `env` object for visualization.
 
-path = [[0,0,0],[1,1,1],[2,2,2],[3,3,3]]
+#path = [[0,0,0],[1,1,1],[2,2,2],[3,3,3]]
 
 # --------------------------------------------------------------------------------------------------- #
+
+# 调用A*搜索算法进行路径规划
+result = a_star_search(start, goal, env)
+if result[0] is not None:
+    path = result[0]  # 获取路径
+    print(f"找到路径，共 {len(path)} 个点")
+    print(f"扩展节点数: {result[1]}")
+    print(f"存放待扩展节点的最大长度: {result[2]}")
+    print(f"搜索时间: {result[3]}")
+else:
+    print("未找到路径")
+    # 如果找不到路径，使用默认路径保证程序继续运行
+
 
 
 env.plot_cylinders(path)

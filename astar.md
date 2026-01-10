@@ -1,17 +1,16 @@
+# 经典A*算法程序流程  
+## （1）初始阶段，将起始节点S加入到开放列表（Openlist）中，准备进行探索
+## （2）进入循环阶段，不断进行以下操作：
+  - 遍历开放列表，找出具有最小 F(n)值的节点，将其作为当前处理的节点
+  - 将当前处理的节点移动到关闭列表（Closelist）中，表示该节点已被探索
+  - 对于当前节点的相邻节点（8个），进行以下检查：
+    - 如果节点不在开放列表中，则将其添加到开放列表，并记录其父节点为当前节点，同时计算 F(n), G(n), H(n)的值；
+    - 如果节点已在开放列表中，则评估新发现的路径是否更优，即比较 G(n)的值，若是新路径更优，更新该节点的父节点为当前节点，并重新计算其 F(n)和G(n)的值;
+    - 当目标节点出现在开放列表中时，表示已经找到到达目标的路径，此时终止循环
+## （3）路径回溯阶段，从终点开始，沿着每个节点的父节点回溯到起始节点，一次构成完整的路径
 
-"""
-In this file, you should implement your own path planning class or function.
-Within your implementation, you may call `env.is_collide()` and `env.is_outside()`
-to verify whether candidate path points collide with obstacles or exceed the
-environment boundaries.
-
-You are required to write the path planning algorithm by yourself. Copying or calling 
-any existing path planning algorithms from others is strictly
-prohibited. Please avoid using external packages beyond common Python libraries
-such as `numpy`, `math`, or `scipy`. If you must use additional packages, you
-must clearly explain the reason in your report.
-"""
-
+# 代码实现
+```python
 import heapq
 import numpy as np
 import matplotlib.pyplot as plt
@@ -98,3 +97,5 @@ def a_star_search(start, goal, env):
 
 def manhattan_distance(a, goal):
     return abs(a[0] - goal[0]) + abs(a[1] - goal[1]) + abs(a[2] - goal[2])
+
+```
