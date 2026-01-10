@@ -1,4 +1,3 @@
-
 """
 In this file, you should implement your own path planning class or function.
 Within your implementation, you may call `env.is_collide()` and `env.is_outside()`
@@ -11,90 +10,82 @@ prohibited. Please avoid using external packages beyond common Python libraries
 such as `numpy`, `math`, or `scipy`. If you must use additional packages, you
 must clearly explain the reason in your report.
 """
-
 import heapq
 import numpy as np
 import matplotlib.pyplot as plt
 from math import sqrt
-import time
 
-def a_star_search(start, goal, env):
-  """
-  start:起点（r,c）
-  goal: 终点（r,c）
-  grid:迷宫矩阵
-  """
-
-  width = env.env_width
-  length = env.env_length
-  hight = env.env_height
-
-  neighbors = [
+class AStarPathPlanner:
+    def __init__(self, env):
+        self.env = env
+        # 定义动作（6个方向：上下左右前后）
+        self.actions = [
             (1, 0, 0), (-1, 0, 0),  # x方向
             (0, 1, 0), (0, -1, 0),  # y方向
             (0, 0, 1), (0, 0, -1)   # z方向
         ]
-  open_heap = []
-  heapq.heappush(open_heap, (0+manhattan_distance(start, goal), 0, start))
-  
-  #最小堆（Min Heap）：父节点的值总是小于或等于其子节点的值，因此，根节点（即heap ）是整个堆中最小的元素
-  #以字典的形式记录节点的父节点（子节点：父节点），方便回溯
-  came_from = {}
-  g = {start: 0} #存储每个节点到起点的已知最小代价G(n)的值
-  expand_count = 0  #扩展节点数
-  frontier_max = 1  #存放待扩展节点的最大长度，佐证启发式函数的优劣
+        
+    def heuristic(self, a, b):
+        """
+        计算两个点之间的启发式距离（欧几里得距离）
+        """
+        return sqrt((a[0] - b[0])**2 + (a[1] - b[1])**2 + (a[2] - b[2])**2)
+    
+    def get_neighbors(self, point):
+        """
+        获取当前点的所有邻居节点
+        """
+        neighbors = []
+        for action in self.actions:
+            neighbor = (point[0] + action[0], point[1] + action[1], point[2] + action[2])
+            # 检查是否在环境边界内且不与障碍物碰撞
+            if not self.env.is_outside(neighbor) and not self.env.is_collide(neighbor):
+                neighbors.append(neighbor)
+        return neighbors
+    
+    def plan_path(self, start, goal):
+        """
+        使用A*算法规划从起点到终点的路径
+        """
+        # 初始化开放列表和关闭列表
+        open_list = [(0, start)]
+        came_from = {}
+        g_score = {start: 0}
+        f_score = {start: self.heuristic(start, goal)}
+        
+        while open_list:
+            # 获取f_score最小的节点
+            current = heapq.heappop(open_list)[1]
+            
+            # 如果到达目标点，则重构路径
+            if current == goal:
+                path = []
+                while current in came_from:
+                    path.append(current)
+                    current = came_from[current]
+                path.append(start)
+                path.reverse()
+                return path
+            
+            # 遍历所有邻居节点
+            for neighbor in self.get_neighbors(current):
+                tentative_g_score = g_score[current] + self.heuristic(current, neighbor)
+                
+                if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
+                    came_from[neighbor] = current
+                    g_score[neighbor] = tentative_g_score
+                    f_score[neighbor] = g_score[neighbor] + self.heuristic(neighbor, goal)
+                    heapq.heappush(open_list, (f_score[neighbor], neighbor))
+        
+        # 如果找不到路径，返回空列表
+        return []
+    
+    
 
-  t0 = time.time()
-  while open_heap:
-    f, g_curr, current = heapq.heappop(open_heap)
-    expand_count += 1
-
-    if current == goal:
-      #回溯路径
-      path = []
-      node = current
-      while node in came_from:
-        path.append(node)
-        node = came_from[node]
-      path.append(start)
-      path.reverse()
-      search_time = time.time() - t0
-      return path, expand_count, frontier_max, search_time
-
-    #遍历可能移动的方向
-    for dx, dy, dz in neighbors:
-      nx, ny, nz = current[0] + dx, current[1] + dy, current[2] + dz #邻居节点的坐标
-
-      #判断邻居节点是否在地图内，且不是障碍物
-      if (0 <= nx < width and 0 <= ny < length and 0 <= nz < hight and
-        not env.is_collide((nx, ny, nz)) and not env.is_outside((nx, ny, nz))):
-        #从起点到邻居节点（nx, ny）的代价（当前G值＋1）
-        tentative_g = g[current] + 1
-
-        #如果第一次访问这个邻居节点，或找到了一条更短路径
-        if tentative_g < g.get((nx, ny, nz), float('inf')):
-          #更新came_from用于回溯路径
-          #表示到达（nx, ny, nz）的最优前驱节点是current节点
-          came_from[(nx, ny, nz)] = current
-
-          #更新从起点到邻居节点（nx, ny, nz）的最小代价G值
-          g[(nx, ny, nz)] = tentative_g
-
-          #计算f=g+h
-          #G是从起点到邻居节点地的代价，h是邻居节点到目标点的启发式评价值
-          f_neighbor = tentative_g + manhattan_distance((nx, ny, nz), goal)
-
-          #将邻居节点加入openlist（优先队列），按f值排序
-          #元组(f, g, node)中f用于排序，g可用作tie-break
-          heapq.heappush(open_heap, (f_neighbor, tentative_g, (nx, ny, nz)))
-
-          #更新frontier_max,用于统计open_list(frontier)最大长度
-          frontier_max = max(frontier_max, len(open_heap))
-
-  search_time = time.time() - t0
-  return None, expand_count, frontier_max, search_time
-
-
-
-def manhattan_distance(a, goal):
-    return abs(a[0] - goal[0]) + abs(a[1] - goal[1]) + abs(a[2] - goal[2])
+def plan_path_astar(env, start, goal):
+    """
+    使用A*算法进行路径规划的函数接口
+    """
+    planner = AStarPathPlanner(env)
+    path = planner.plan_path(start, goal)
+    return path           
