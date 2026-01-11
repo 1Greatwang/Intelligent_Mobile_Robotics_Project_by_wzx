@@ -1,5 +1,7 @@
 from flight_environment import FlightEnvironment
-from path_planner import plan_path_astar, AStarPathPlanner
+from path_planner import plan_path_rrt, RRTPathPlanner
+from trajectory_generator import plot_path_coordinates
+import numpy as np
 
 env = FlightEnvironment(50)
 start = (1,2,0)
@@ -18,13 +20,19 @@ goal = (18,18,3)
 
 # --------------------------------------------------------------------------------------------------- #
 
-planner = AStarPathPlanner(env)
-path = plan_path_astar(env, start, goal)
+planner = RRTPathPlanner(env)
+path = plan_path_rrt(env, start, goal)
+
+if path:
+    path = np.array(path)
+else:
+    print("No path found!")
+    path = np.array([[start[0], start[1], start[2]], [goal[0], goal[1], goal[2]]])
 
 
 env.plot_cylinders(path)
 
-
+plot_path_coordinates(env, path)
 
 # --------------------------------------------------------------------------------------------------- #
 #   Call your trajectory planning algorithm here. The algorithm should
