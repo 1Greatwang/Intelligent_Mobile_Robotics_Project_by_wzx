@@ -15,3 +15,39 @@ beyond general scientific libraries such as numpy, math, or scipy. If you decide
 to use additional packages, you must clearly explain the reason in your report.
 """
 
+import matplotlib.pyplot as plt
+import numpy as np
+
+def plot_path_coordinates(self, path):
+        """
+        绘制路径在各坐标轴上的变化曲线
+        """
+        
+        # 转换为numpy数组以便处理
+        path_array = np.array(path)
+        
+        # 创建图形和子图
+        fig, axs = plt.subplots(3, 1, figsize=(10, 8))
+        time_steps = range(len(path_array))
+        
+        # 绘制x坐标变化
+        axs[0].plot(time_steps, path_array[:, 0], marker='o', linestyle='-', color='r')
+        axs[0].set_ylabel('X Coordinate')
+        axs[0].set_title('X Coordinate vs. Time Step')
+        axs[0].grid(True)
+        
+        # 绘制y坐标变化
+        axs[1].plot(time_steps, path_array[:, 1], marker='o', linestyle='-', color='g')
+        axs[1].set_ylabel('Y Coordinate')
+        axs[1].set_title('Y Coordinate vs. Time Step')
+        axs[1].grid(True)
+        
+        # 绘制z坐标变化
+        axs[2].plot(time_steps, path_array[:, 2], marker='o', linestyle='-', color='b')
+        axs[2].set_xlabel('Time Step')
+        axs[2].set_ylabel('Z Coordinate')
+        axs[2].set_title('Z Coordinate vs. Time Step')
+        axs[2].grid(True)
+        
+        plt.tight_layout()
+        plt.show()

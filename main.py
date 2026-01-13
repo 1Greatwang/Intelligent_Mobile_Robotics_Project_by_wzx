@@ -1,4 +1,8 @@
 from flight_environment import FlightEnvironment
+from path_planner import plan_path_rrt, RRTPathPlanner, AStarPathPlanner, plan_path_astar
+
+from trajectory_generator import plot_path_coordinates
+import numpy as np
 
 env = FlightEnvironment(50)
 start = (1,2,0)
@@ -13,12 +17,22 @@ goal = (18,18,3)
 #   - column 3 contains the z-coordinates of all path points
 # This `path` array will be provided to the `env` object for visualization.
 
-path = [[0,0,0],[1,1,1],[2,2,2],[3,3,3]]
+#path = [[0,0,0],[1,1,1],[2,2,2],[3,3,3]]
 
 # --------------------------------------------------------------------------------------------------- #
 
+planner_astar = AStarPathPlanner(env)
+planner_rrt = RRTPathPlanner(env)
 
-env.plot_cylinders(path)
+path_astar = plan_path_astar(env, start, goal)
+path_rrt = planner_rrt.plan_path(start, goal)
+
+
+env.plot_cylinders(path_astar)
+env.plot_cylinders(path_rrt)
+
+plot_path_coordinates(env, path_astar)
+plot_path_coordinates(env, path_rrt)
 
 
 # --------------------------------------------------------------------------------------------------- #
