@@ -31,8 +31,8 @@ path_rrt = planner_rrt.plan_path(start, goal)
 env.plot_cylinders(path_astar)
 env.plot_cylinders(path_rrt)
 
-plot_path_coordinates(env, path_astar)
-plot_path_coordinates(env, path_rrt)
+plot_path_coordinates(env, path_astar, 'Path A*')
+plot_path_coordinates(env, path_rrt, 'Path RRT')
 
 
 # --------------------------------------------------------------------------------------------------- #
